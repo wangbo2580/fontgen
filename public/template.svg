@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="595" height="842" viewBox="0 0 595 842">
+  <!-- A4 size at 72 DPI: 595 x 842 -->
+  <style>
+    text { font-family: Arial, Helvetica, sans-serif; }
+    .title { font-size: 16px; font-weight: bold; fill: #333; }
+    .subtitle { font-size: 9px; fill: #666; }
+    .cell-label { font-size: 10px; fill: #ccc; }
+    .baseline { stroke: #ddd; stroke-dasharray: 4 2; stroke-width: 0.5; }
+    .cell-border { fill: none; stroke: #bbb; stroke-width: 0.75; }
+    .outer-border { fill: none; stroke: #999; stroke-width: 1; }
+  </style>
+
+  <!-- Title -->
+  <text x="297.5" y="35" text-anchor="middle" class="title">Handwriting Template — A to Z</text>
+  <text x="297.5" y="50" text-anchor="middle" class="subtitle">Write one letter per cell using a dark pen. Keep letters within the baseline guides. Then take a photo or scan.</text>
+
+  <!-- Grid: 5 columns x 6 rows = 30 cells (26 used for A-Z) -->
+  <!-- Grid area: x=47.5 to x=547.5 (500px wide), y=70 to y=790 (720px tall) -->
+  <!-- Cell size: 100 x 120 -->
+
+  <!-- Outer border -->
+  <rect x="47.5" y="70" width="500" height="720" class="outer-border"/>
+
+  <!-- Row 1: A B C D E -->
+  <rect x="47.5" y="70" width="100" height="120" class="cell-border"/>
+  <text x="55" y="84" class="cell-label">A</text>
+  <line x1="47.5" y1="154" x2="147.5" y2="154" class="baseline"/>
+
+  <rect x="147.5" y="70" width="100" height="120" class="cell-border"/>
+  <text x="155" y="84" class="cell-label">B</text>
+  <line x1="147.5" y1="154" x2="247.5" y2="154" class="baseline"/>
+
+  <rect x="247.5" y="70" width="100" height="120" class="cell-border"/>
+  <text x="255" y="84" class="cell-label">C</text>
+  <line x1="247.5" y1="154" x2="347.5" y2="154" class="baseline"/>
+
+  <rect x="347.5" y="70" width="100" height="120" class="cell-border"/>
+  <text x="355" y="84" class="cell-label">D</text>
+  <line x1="347.5" y1="154" x2="447.5" y2="154" class="baseline"/>
+
+  <rect x="447.5" y="70" width="100" height="120" class="cell-border"/>
+  <text x="455" y="84" class="cell-label">E</text>
+  <line x1="447.5" y1="154" x2="547.5" y2="154" class="baseline"/>
+
+  <!-- Row 2: F G H I J -->
+  <rect x="47.5" y="190" width="100" height="120" class="cell-border"/>
+  <text x="55" y="204" class="cell-label">F</text>
+  <line x1="47.5" y1="274" x2="147.5" y2="274" class="baseline"/>
+
+  <rect x="147.5" y="190" width="100" height="120" class="cell-border"/>
+  <text x="155" y="204" class="cell-label">G</text>
+  <line x1="147.5" y1="274" x2="247.5" y2="274" class="baseline"/>
+
+  <rect x="247.5" y="190" width="100" height="120" class="cell-border"/>
+  <text x="255" y="204" class="cell-label">H</text>
+  <line x1="247.5" y1="274" x2="347.5" y2="274" class="baseline"/>
+
+  <rect x="347.5" y="190" width="100" height="120" class="cell-border"/>
+  <text x="355" y="204" class="cell-label">I</text>
+  <line x1="347.5" y1="274" x2="447.5" y2="274" class="baseline"/>
+
+  <rect x="447.5" y="190" width="100" height="120" class="cell-border"/>
+  <text x="455" y="204" class="cell-label">J</text>
+  <line x1="447.5" y1="274" x2="547.5" y2="274" class="baseline"/>
+
+  <!-- Row 3: K L M N O -->
+  <rect x="47.5" y="310" width="100" height="120" class="cell-border"/>
+  <text x="55" y="324" class="cell-label">K</text>
+  <line x1="47.5" y1="394" x2="147.5" y2="394" class="baseline"/>
+
+  <rect x="147.5" y="310" width="100" height="120" class="cell-border"/>
+  <text x="155" y="324" class="cell-label">L</text>
+  <line x1="147.5" y1="394" x2="247.5" y2="394" class="baseline"/>
+
+  <rect x="247.5" y="310" width="100" height="120" class="cell-border"/>
+  <text x="255" y="324" class="cell-label">M</text>
+  <line x1="247.5" y1="394" x2="347.5" y2="394" class="baseline"/>
+
+  <rect x="347.5" y="310" width="100" height="120" class="cell-border"/>
+  <text x="355" y="324" class="cell-label">N</text>
+  <line x1="347.5" y1="394" x2="447.5" y2="394" class="baseline"/>
+
+  <rect x="447.5" y="310" width="100" height="120" class="cell-border"/>
+  <text x="455" y="324" class="cell-label">O</text>
+  <line x1="447.5" y1="394" x2="547.5" y2="394" class="baseline"/>
+
+  <!-- Row 4: P Q R S T -->
+  <rect x="47.5" y="430" width="100" height="120" class="cell-border"/>
+  <text x="55" y="444" class="cell-label">P</text>
+  <line x1="47.5" y1="514" x2="147.5" y2="514" class="baseline"/>
+
+  <rect x="147.5" y="430" width="100" height="120" class="cell-border"/>
+  <text x="155" y="444" class="cell-label">Q</text>
+  <line x1="147.5" y1="514" x2="247.5" y2="514" class="baseline"/>
+
+  <rect x="247.5" y="430" width="100" height="120" class="cell-border"/>
+  <text x="255" y="444" class="cell-label">R</text>
+  <line x1="247.5" y1="514" x2="347.5" y2="514" class="baseline"/>
+
+  <rect x="347.5" y="430" width="100" height="120" class="cell-border"/>
+  <text x="355" y="444" class="cell-label">S</text>
+  <line x1="347.5" y1="514" x2="447.5" y2="514" class="baseline"/>
+
+  <rect x="447.5" y="430" width="100" height="120" class="cell-border"/>
+  <text x="455" y="444" class="cell-label">T</text>
+  <line x1="447.5" y1="514" x2="547.5" y2="514" class="baseline"/>
+
+  <!-- Row 5: U V W X Y -->
+  <rect x="47.5" y="550" width="100" height="120" class="cell-border"/>
+  <text x="55" y="564" class="cell-label">U</text>
+  <line x1="47.5" y1="634" x2="147.5" y2="634" class="baseline"/>
+
+  <rect x="147.5" y="550" width="100" height="120" class="cell-border"/>
+  <text x="155" y="564" class="cell-label">V</text>
+  <line x1="147.5" y1="634" x2="247.5" y2="634" class="baseline"/>
+
+  <rect x="247.5" y="550" width="100" height="120" class="cell-border"/>
+  <text x="255" y="564" class="cell-label">W</text>
+  <line x1="247.5" y1="634" x2="347.5" y2="634" class="baseline"/>
+
+  <rect x="347.5" y="550" width="100" height="120" class="cell-border"/>
+  <text x="355" y="564" class="cell-label">X</text>
+  <line x1="347.5" y1="634" x2="447.5" y2="634" class="baseline"/>
+
+  <rect x="447.5" y="550" width="100" height="120" class="cell-border"/>
+  <text x="455" y="564" class="cell-label">Y</text>
+  <line x1="447.5" y1="634" x2="547.5" y2="634" class="baseline"/>
+
+  <!-- Row 6: Z (only 1 cell used) -->
+  <rect x="47.5" y="670" width="100" height="120" class="cell-border"/>
+  <text x="55" y="684" class="cell-label">Z</text>
+  <line x1="47.5" y1="754" x2="147.5" y2="754" class="baseline"/>
+
+  <rect x="147.5" y="670" width="100" height="120" class="cell-border"/>
+  <rect x="247.5" y="670" width="100" height="120" class="cell-border"/>
+  <rect x="347.5" y="670" width="100" height="120" class="cell-border"/>
+  <rect x="447.5" y="670" width="100" height="120" class="cell-border"/>
+
+  <!-- Footer -->
+  <text x="297.5" y="815" text-anchor="middle" class="subtitle">fontgen.app — AI Handwriting Font Generator</text>
+</svg>

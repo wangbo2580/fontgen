@@ -1,11 +1,18 @@
 import { MetadataRoute } from 'next';
-import { getAllStyleSlugs } from '@/lib/seo-styles';
+import { getAllStyleSlugs, getAllLandingPageSlugs } from '@/lib/seo-styles';
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://fontgen.ai';
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const stylePages = getAllStyleSlugs().map((slug) => ({
     url: `${BASE_URL}/ai-${slug}-font-generator`,
+    lastModified: new Date(),
+    changeFrequency: 'monthly' as const,
+    priority: 0.8,
+  }));
+
+  const landingPages = getAllLandingPageSlugs().map((slug) => ({
+    url: `${BASE_URL}/${slug}`,
     lastModified: new Date(),
     changeFrequency: 'monthly' as const,
     priority: 0.8,
@@ -31,6 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.8,
     },
     ...stylePages,
+    ...landingPages,
     {
       url: `${BASE_URL}/privacy`,
       lastModified: new Date(),

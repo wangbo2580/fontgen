@@ -28,7 +28,7 @@ export async function generateFont(
       const scaled = scaleImageData(cropped, 200);
 
       // 4. Convert to glyph
-      const glyph = imageDataToGlyph(
+      const glyph = await imageDataToGlyph(
         scaled,
         glyphData.letter,
         glyphData.unicode,

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const AI_MODEL = process.env.AI_MODEL || 'google/gemini-2.5-flash-lite';
+const AI_MODEL_FALLBACK = process.env.AI_MODEL_FALLBACK || 'google/gemini-3-flash-preview';
 
 const SYSTEM_PROMPT = `You are an image analysis assistant specialized in handwriting template processing.
 
@@ -33,6 +34,45 @@ Important:
 - If a character is missing or unreadable, still include it with quality_score < 30
 - Always return exactly 26 characters (A-Z)`;
 
+async function callModel(
+  apiKey: string,
+  model: string,
+  messages: unknown[]
+): Promise<Record<string, unknown> | null> {
+  try {
+    const response = await fetch(OPENROUTER_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+        'X-Title': process.env.NEXT_PUBLIC_APP_NAME || 'FontGen',
+      },
+      body: JSON.stringify({
+        model,
+        messages,
+        max_tokens: 4096,
+        temperature: 0.1,
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`Model ${model} failed:`, response.status, await response.text());
+      return null;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) return null;
+
+    const jsonStr = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    return JSON.parse(jsonStr);
+  } catch (err) {
+    console.error(`Model ${model} error:`, err);
+    return null;
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const apiKey = process.env.OPENROUTER_API_KEY;
@@ -63,75 +103,40 @@ export async function POST(request: NextRequest) {
       mimeType = 'image/png';
     }
 
-    const response = await fetch(OPENROUTER_API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`,
-        'HTTP-Referer': process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-        'X-Title': process.env.NEXT_PUBLIC_APP_NAME || 'FontGen',
+    const messages = [
+      {
+        role: 'system',
+        content: SYSTEM_PROMPT,
       },
-      body: JSON.stringify({
-        model: AI_MODEL,
-        messages: [
+      {
+        role: 'user',
+        content: [
           {
-            role: 'system',
-            content: SYSTEM_PROMPT,
+            type: 'text',
+            text: 'Analyze this handwriting template image. Identify each letter cell, provide bounding box coordinates, and assess quality. Return JSON only.',
           },
           {
-            role: 'user',
-            content: [
-              {
-                type: 'text',
-                text: 'Analyze this handwriting template image. Identify each letter cell, provide bounding box coordinates, and assess quality. Return JSON only.',
-              },
-              {
-                type: 'image_url',
-                image_url: {
-                  url: `data:${mimeType};base64,${image}`,
-                },
-              },
-            ],
+            type: 'image_url',
+            image_url: {
+              url: `data:${mimeType};base64,${image}`,
+            },
           },
         ],
-        max_tokens: 4096,
-        temperature: 0.1,
-      }),
-    });
+      },
+    ];
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('OpenRouter API error:', response.status, errorText);
+    // Try primary model, fallback to secondary on failure
+    const result = await callModel(apiKey, AI_MODEL, messages)
+      ?? await callModel(apiKey, AI_MODEL_FALLBACK, messages);
+
+    if (!result) {
       return NextResponse.json(
         { error: 'AI processing failed' },
         { status: 502 }
       );
     }
 
-    const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
-
-    if (!content) {
-      return NextResponse.json(
-        { error: 'Empty AI response' },
-        { status: 502 }
-      );
-    }
-
-    // Parse JSON from the AI response (handle markdown code blocks)
-    let parsed;
-    try {
-      const jsonStr = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      parsed = JSON.parse(jsonStr);
-    } catch {
-      console.error('Failed to parse AI response:', content);
-      return NextResponse.json(
-        { error: 'Invalid AI response format' },
-        { status: 502 }
-      );
-    }
-
-    return NextResponse.json(parsed);
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Preprocessing error:', error);
     return NextResponse.json(

@@ -6,17 +6,17 @@ import { toBinaryBitmap, findBoundingBox, otsuThreshold } from './canvas-utils';
 /**
  * Convert a single character ImageData to an opentype.js Glyph.
  */
-export function imageDataToGlyph(
+export async function imageDataToGlyph(
   imageData: ImageData,
   letter: string,
   unicode: number,
   config: FontConfig = DEFAULT_FONT_CONFIG
-): Glyph {
+): Promise<Glyph> {
   const path = new Path();
   const { unitsPerEm, ascender, descender } = config;
 
   // Trace the image to get SVG path
-  const svgPathStr = traceImageData(imageData);
+  const svgPathStr = await traceImageData(imageData);
 
   if (!svgPathStr) {
     return new Glyph({

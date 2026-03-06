@@ -3,9 +3,55 @@ import { toBinaryBitmap, otsuThreshold } from './canvas-utils';
 
 /**
  * Trace contours from ImageData and return SVG path commands.
- * Pure JavaScript implementation using marching squares contour extraction.
+ * Uses potrace-wasm as primary path, falls back to pure JS implementation.
  */
-export function traceImageData(imageData: ImageData): string {
+export async function traceImageData(imageData: ImageData): Promise<string> {
+  try {
+    return await traceWithPotrace(imageData);
+  } catch (err) {
+    console.warn('potrace-wasm failed, falling back to JS:', err);
+    return traceWithJS(imageData);
+  }
+}
+
+/**
+ * Primary path: potrace-wasm vectorization.
+ * Creates an OffscreenCanvas from ImageData, passes to potrace-wasm.
+ */
+async function traceWithPotrace(imageData: ImageData): Promise<string> {
+  const { loadFromCanvas } = await import('potrace-wasm');
+
+  // potrace-wasm expects a canvas element
+  const canvas = new OffscreenCanvas(imageData.width, imageData.height);
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('Failed to get 2d context from OffscreenCanvas');
+  ctx.putImageData(imageData, 0, 0);
+
+  // loadFromCanvas returns a full SVG string
+  const svg: string = await loadFromCanvas(canvas);
+  if (!svg) return '';
+
+  // Extract all path d attributes from the SVG
+  return extractPathsFromSvg(svg);
+}
+
+/**
+ * Extract path d-attribute values from an SVG string returned by potrace.
+ */
+function extractPathsFromSvg(svg: string): string {
+  const paths: string[] = [];
+  const regex = /\bd="([^"]+)"/g;
+  let match;
+  while ((match = regex.exec(svg)) !== null) {
+    paths.push(match[1]);
+  }
+  return paths.join(' ');
+}
+
+/**
+ * Fallback: pure JS contour tracing (Moore boundary + Douglas-Peucker + Catmull-Rom).
+ */
+function traceWithJS(imageData: ImageData): string {
   const threshold = otsuThreshold(imageData);
   const bitmap = toBinaryBitmap(imageData, threshold);
   const { width, height } = imageData;
@@ -24,23 +70,19 @@ export function traceImageData(imageData: ImageData): string {
   return paths.join(' ');
 }
 
-/**
- * Extract contours from a binary bitmap using boundary following.
- * All coordinates are in the original image coordinate space.
- */
+// --- Pure JS fallback implementation below ---
+
 function extractContours(
   bitmap: Uint8Array,
   width: number,
   height: number
 ): ContourPath[] {
   const contours: ContourPath[] = [];
-  // Track which pixels have been claimed as contour start points
   const visited = new Uint8Array(width * height);
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const idx = y * width + x;
-      // Look for outer contour: black pixel with white (or border) to its left
       if (bitmap[idx] === 1 && visited[idx] === 0) {
         const leftIsWhite = x === 0 || bitmap[y * width + (x - 1)] === 0;
         if (leftIsWhite) {
@@ -56,10 +98,6 @@ function extractContours(
   return contours;
 }
 
-/**
- * Trace a single contour using Moore neighborhood boundary tracing.
- * All coordinates stay within [0, width) x [0, height).
- */
 function traceContour(
   bitmap: Uint8Array,
   width: number,
@@ -68,14 +106,12 @@ function traceContour(
   startY: number,
   visited: Uint8Array
 ): Point[] {
-  // 8-directional neighbors: right, down-right, down, down-left, left, up-left, up, up-right
   const dx = [1, 1, 0, -1, -1, -1, 0, 1];
   const dy = [0, 1, 1, 1, 0, -1, -1, -1];
 
   const points: Point[] = [];
   let cx = startX;
   let cy = startY;
-  // Start searching from the left direction (index 4)
   let backtrackDir = 4;
 
   const maxSteps = width * height;
@@ -86,7 +122,6 @@ function traceContour(
     points.push({ x: cx, y: cy });
     visited[cy * width + cx] = 1;
 
-    // Search clockwise starting from (backtrackDir + 1) % 8
     const searchStart = (backtrackDir + 1) % 8;
     let found = false;
 
@@ -96,10 +131,8 @@ function traceContour(
       const ny = cy + dy[dir];
 
       if (nx >= 0 && nx < width && ny >= 0 && ny < height && bitmap[ny * width + nx] === 1) {
-        // Move to this neighbor
         cx = nx;
         cy = ny;
-        // Backtrack direction is opposite of the direction we came from
         backtrackDir = (dir + 4) % 8;
         found = true;
         break;
@@ -111,11 +144,9 @@ function traceContour(
     steps++;
     if (steps > maxSteps) break;
 
-    // Check if we've returned to start
     if (cx === startX && cy === startY) {
       if (firstVisit) {
         firstVisit = false;
-        // Continue to verify it's a closed loop, not just touching start
       } else {
         break;
       }
@@ -125,10 +156,6 @@ function traceContour(
   return points;
 }
 
-/**
- * Douglas-Peucker line simplification algorithm.
- * Reduces the number of points while preserving shape.
- */
 function douglasPeucker(points: Point[], epsilon: number): Point[] {
   if (points.length <= 2) return [...points];
 
@@ -170,11 +197,6 @@ function perpendicularDistance(point: Point, lineStart: Point, lineEnd: Point): 
   return Math.sqrt((point.x - projX) ** 2 + (point.y - projY) ** 2);
 }
 
-/**
- * Convert simplified contour points to SVG path with smooth cubic Bezier curves.
- * Uses Catmull-Rom to Cubic Bezier conversion correctly:
- * For each segment between p[i] and p[i+1], generate one cubic Bezier curve.
- */
 function smoothContourToSvgPath(points: Point[]): string {
   const n = points.length;
   if (n < 3) return '';
@@ -182,7 +204,6 @@ function smoothContourToSvgPath(points: Point[]): string {
   let d = `M ${points[0].x} ${points[0].y} `;
 
   if (n <= 3) {
-    // Too few points for smooth curves, use line segments
     for (let i = 1; i < n; i++) {
       d += `L ${points[i].x} ${points[i].y} `;
     }
@@ -190,9 +211,7 @@ function smoothContourToSvgPath(points: Point[]): string {
     return d;
   }
 
-  // Generate one cubic Bezier curve per segment (from points[i] to points[i+1])
-  // Using Catmull-Rom spline through 4 consecutive points
-  const tension = 6; // Higher = tighter curves
+  const tension = 6;
 
   for (let i = 0; i < n; i++) {
     const p0 = points[(i - 1 + n) % n];
@@ -200,7 +219,6 @@ function smoothContourToSvgPath(points: Point[]): string {
     const p2 = points[(i + 1) % n];
     const p3 = points[(i + 2) % n];
 
-    // Catmull-Rom to Cubic Bezier control points for the segment p1 -> p2
     const cp1x = p1.x + (p2.x - p0.x) / tension;
     const cp1y = p1.y + (p2.y - p0.y) / tension;
     const cp2x = p2.x - (p3.x - p1.x) / tension;
@@ -228,7 +246,6 @@ export interface PathCommand {
 
 export function parseSvgPath(d: string): PathCommand[] {
   const commands: PathCommand[] = [];
-  // Match command letter followed by optional numeric arguments
   const regex = /([MLCQZ])\s*([-\d.,\s]*)/gi;
   let match;
 

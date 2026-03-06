@@ -377,3 +377,142 @@ export function getStyleBySlug(slug: string): FontStyle | undefined {
 export function getAllStyleSlugs(): string[] {
   return FONT_STYLES.map((s) => s.slug);
 }
+
+// --- B-group: Text to Handwriting category pages ---
+
+export interface SeoLandingPage {
+  slug: string;
+  title: string;
+  h1: string;
+  description: string;
+  intro: string;
+  benefits: string[];
+  steps: { title: string; desc: string }[];
+  faqs: { q: string; a: string }[];
+}
+
+export const SEO_LANDING_PAGES: SeoLandingPage[] = [
+  {
+    slug: 'text-to-handwriting-converter',
+    title: 'Text to Handwriting Converter - Turn Typed Text into Handwritten Style | FontGen',
+    h1: 'Text to Handwriting Converter',
+    description: 'Convert typed text into realistic handwriting style. Create your own handwriting font from a photo or in-browser canvas, then type anything in your handwriting.',
+    intro: 'Stop pasting handwriting images into documents. With FontGen, you create a real font from your handwriting — then type naturally in any app, and the output looks handwritten. Write the alphabet once, get a font file you can install and use everywhere.',
+    benefits: [
+      'Type in your own handwriting in Word, Google Docs, or any app',
+      'No more scanning individual pages — one font covers everything',
+      'Consistent handwriting style across all your documents',
+      'Works offline after installing the .OTF font file',
+    ],
+    steps: [
+      { title: 'Write Your Alphabet', desc: 'Write A-Z on paper or directly in the browser canvas. This is the only handwriting you need to do.' },
+      { title: 'Upload or Submit', desc: 'Snap a photo of your handwritten alphabet or submit your canvas input. The AI extracts each letter automatically.' },
+      { title: 'Get Your Font', desc: 'Download a real .OTF font file. Install it on your computer and type in your handwriting in any application.' },
+    ],
+    faqs: [
+      { q: 'Is this the same as those "text to handwriting" tools that paste text onto lined paper?', a: 'No. Those tools render text as an image. FontGen creates an actual installable font file from your handwriting, so you can type in your own handwriting in any application — Word, Google Docs, Photoshop, anything that supports custom fonts.' },
+      { q: 'Do I need to write every letter?', a: 'For the best result, yes — write A-Z (and optionally a-z, 0-9, punctuation). Any letters you skip will fall back to a default placeholder.' },
+      { q: 'Can I use the font on my phone?', a: 'On iOS and Android, you can install custom fonts through apps like iFont or FontInstaller. The .OTF file FontGen generates is compatible with these tools.' },
+    ],
+  },
+  {
+    slug: 'handwriting-to-font',
+    title: 'Handwriting to Font Converter - Create Fonts from Your Handwriting | FontGen',
+    h1: 'Convert Handwriting to Font',
+    description: 'Turn your handwriting into an installable font file. Upload a photo of your handwritten alphabet or write in the browser — get a real .OTF font in minutes.',
+    intro: 'Your handwriting is unique. FontGen turns it into a digital font you can install and use anywhere. No printing templates, no scanning, no font editor experience needed. Write the alphabet, let the AI process it, and download your personal font file.',
+    benefits: [
+      'Upload a photo of handwriting — no template printing required',
+      'AI automatically detects and extracts each letter',
+      'Get a real .OTF font file, not just an image',
+      'Use your handwriting font in any design or document tool',
+    ],
+    steps: [
+      { title: 'Write the Alphabet', desc: 'Write A-Z on any white paper or use the in-browser canvas. Dark ink on white background works best.' },
+      { title: 'AI Processing', desc: 'Upload your photo. The AI identifies each letter, crops it, and traces the outlines into clean vector paths.' },
+      { title: 'Download & Install', desc: 'Get your .OTF font file. Install it like any other font and start typing in your own handwriting.' },
+    ],
+    faqs: [
+      { q: 'How is this different from Calligraphr?', a: 'Calligraphr requires you to print a specific template, write on it, scan it back, and upload. FontGen skips the template — write on any paper or use the browser canvas, snap a photo, and the AI handles the rest.' },
+      { q: 'What image quality do I need?', a: 'A phone camera photo in decent lighting works fine. The key is dark ink on white paper with enough contrast for the AI to detect letter edges.' },
+      { q: 'Can I edit the font after creating it?', a: 'The .OTF file can be opened in any font editor (FontForge, Glyphs, etc.) for further tweaking. Most users find the output good enough to use directly.' },
+    ],
+  },
+  {
+    slug: 'create-font-from-handwriting',
+    title: 'Create Font from Handwriting - Make Your Own Handwriting Font | FontGen',
+    h1: 'Create a Font from Your Handwriting',
+    description: 'Make your own handwriting font in minutes. Write the alphabet, upload a photo or use the online canvas, and download a real .OTF font file.',
+    intro: 'Making a font from your handwriting used to require professional tools and hours of manual work. FontGen simplifies the entire process: write the alphabet once, upload or draw in the browser, and get an installable font file. The whole process takes minutes, not hours.',
+    benefits: [
+      'Complete process takes under 10 minutes',
+      'No design skills or font editing knowledge needed',
+      'Two input methods: photo upload or browser canvas',
+      'Standard .OTF output works everywhere fonts are supported',
+    ],
+    steps: [
+      { title: 'Choose Your Method', desc: 'Write on paper and take a photo, or use the in-browser canvas to write directly on screen. Both produce the same quality font.' },
+      { title: 'Automatic Processing', desc: 'The AI cleans your handwriting, identifies each character, and converts the ink strokes into smooth vector outlines.' },
+      { title: 'Preview & Download', desc: 'See your font in action with the live preview. Type any text to test it. Download the .OTF file when you are happy with the result.' },
+    ],
+    faqs: [
+      { q: 'How long does the whole process take?', a: 'Writing the alphabet takes 3-5 minutes. Processing and font generation is near-instant. Most users have their font file within 10 minutes.' },
+      { q: 'What if I mess up a letter?', a: 'With the browser canvas, you can redo individual letters. With photo upload, you can retake the photo. The AI is also forgiving of minor imperfections.' },
+      { q: 'Is the font file commercially usable?', a: 'The Free plan is for personal preview only. The Basic plan ($9.99) includes personal use rights. The Business plan ($39.99) includes a commercial use license.' },
+    ],
+  },
+  {
+    slug: 'handwriting-font-maker',
+    title: 'Handwriting Font Maker - Free Online Font Creator | FontGen',
+    h1: 'Handwriting Font Maker',
+    description: 'Free online handwriting font maker. Create custom fonts from your handwriting — write, upload, and download .OTF files. No software installation needed.',
+    intro: 'FontGen is an online handwriting font maker that runs entirely in your browser. No software to download, no accounts to create for the basic experience. Write your alphabet, let the tool process it, and get a font file. It is the fastest way to go from handwriting on paper to a working digital font.',
+    benefits: [
+      'Runs in the browser — no software to install',
+      'Free to preview your font before paying',
+      'Supports full character set: A-Z, a-z, 0-9, punctuation',
+      'AI-powered letter detection and vectorization',
+    ],
+    steps: [
+      { title: 'Write Your Characters', desc: 'Write the full alphabet (and optionally numbers and punctuation) on paper or in the browser canvas.' },
+      { title: 'Upload & Generate', desc: 'Upload your handwriting photo or submit your canvas drawings. FontGen generates your font automatically.' },
+      { title: 'Preview & Export', desc: 'Test your font with the live preview. Type anything to see how it looks. Download the .OTF file to install on your computer.' },
+    ],
+    faqs: [
+      { q: 'Is this tool really free?', a: 'You can create and preview your font for free. Downloading the .OTF file requires a paid plan starting at $9.99 (one-time, not subscription).' },
+      { q: 'Do I need to create an account?', a: 'No account is needed. You can start creating your font immediately. The font is generated in your browser.' },
+      { q: 'What browsers are supported?', a: 'Any modern browser — Chrome, Firefox, Safari, Edge. The tool uses standard web technologies (Canvas API, WebAssembly) that all major browsers support.' },
+    ],
+  },
+  {
+    slug: 'turn-handwriting-into-font',
+    title: 'Turn Handwriting into a Font - Convert Your Writing to .OTF | FontGen',
+    h1: 'Turn Your Handwriting into a Font',
+    description: 'Turn handwriting into a real, installable font. Write on paper or in the browser, and FontGen converts it into a .OTF font file you can use anywhere.',
+    intro: 'Every person\'s handwriting is different, and that is exactly what makes a handwriting font special. FontGen captures your unique letter shapes, stroke patterns, and natural quirks, then packages them into a standard font file. The result is a font that actually looks like you wrote it — because you did.',
+    benefits: [
+      'Preserves the natural character of your handwriting',
+      'Works with any handwriting style — neat, messy, artistic',
+      'Standard .OTF format compatible with all operating systems',
+      'One-time creation, unlimited use across all your projects',
+    ],
+    steps: [
+      { title: 'Handwrite the Alphabet', desc: 'Use your normal handwriting — do not try to be perfect. The natural variations in your writing are what make the font feel authentic.' },
+      { title: 'Digital Conversion', desc: 'Upload a photo or use the canvas tool. The AI traces each letter\'s outline and converts it into scalable vector paths.' },
+      { title: 'Install & Use', desc: 'Download your .OTF font file. Install it on Windows, Mac, or Linux. Type in your handwriting in any application.' },
+    ],
+    faqs: [
+      { q: 'Will the font look exactly like my handwriting?', a: 'Very close. The main difference is that in a font, each letter always looks identical — in real handwriting, you naturally vary each letter slightly. The letter shapes, slant, and proportions match your writing accurately.' },
+      { q: 'What if my handwriting is messy?', a: 'Messy handwriting makes great fonts — it adds character. As long as each letter is distinguishable, the tool can process it. Write a bit slower than usual for the clearest result.' },
+      { q: 'Can I make fonts for other people?', a: 'Yes. Have them write the alphabet, upload it to FontGen, and generate their personal font. Each person gets their own unique font file.' },
+    ],
+  },
+];
+
+export function getLandingPageBySlug(slug: string): SeoLandingPage | undefined {
+  return SEO_LANDING_PAGES.find((p) => p.slug === slug);
+}
+
+export function getAllLandingPageSlugs(): string[] {
+  return SEO_LANDING_PAGES.map((p) => p.slug);
+}

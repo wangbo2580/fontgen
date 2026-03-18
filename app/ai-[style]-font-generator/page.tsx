@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getStyleBySlug, getAllStyleSlugs } from '@/lib/seo-styles';
+import { getStyleBySlug, getAllStyleSlugs, FONT_STYLES } from '@/lib/seo-styles';
 import { Check, ArrowRight, Pen } from 'lucide-react';
 
 export const dynamicParams = false;
@@ -187,6 +187,27 @@ export default async function StylePage({ params }: PageProps) {
                   {faq.a}
                 </div>
               </details>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Other font styles */}
+      <section className="py-16">
+        <div className="max-w-4xl mx-auto px-4">
+          <h2 className="text-2xl font-bold mb-6 text-center">
+            Explore Other Font Styles
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {FONT_STYLES.filter((s) => s.slug !== slug).slice(0, 8).map((s) => (
+              <Link
+                key={s.slug}
+                href={`/ai-${s.slug}-font-generator`}
+                className="text-center p-3 border rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-colors"
+              >
+                <span className="text-sm font-medium">{s.label}</span>
+                <span className="block text-xs text-muted-foreground mt-1">Font Generator</span>
+              </Link>
             ))}
           </div>
         </div>

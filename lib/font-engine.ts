@@ -1,7 +1,12 @@
 import { Font, Glyph } from 'opentype.js';
-import { GlyphData, FontConfig, DEFAULT_FONT_CONFIG, ALL_CHARACTERS, LETTERS } from '@/types';
+import { GlyphData, FontConfig, DEFAULT_FONT_CONFIG, ALL_CHARACTERS, LETTERS, LETTERS_UPPER } from '@/types';
 import { imageDataToGlyph, createFont, fontToArrayBuffer } from './opentype-wrapper';
 import { cleanBinaryImage, cropToContent, scaleImageData } from './canvas-utils';
+
+/**
+ * Progress callback for font generation
+ */
+export type FontProgressCallback = (current: number, total: number, letter: string) => void;
 
 /**
  * Main font generation pipeline.
@@ -9,12 +14,18 @@ import { cleanBinaryImage, cropToContent, scaleImageData } from './canvas-utils'
  */
 export async function generateFont(
   glyphDataArray: GlyphData[],
-  config: FontConfig = DEFAULT_FONT_CONFIG
+  config: FontConfig = DEFAULT_FONT_CONFIG,
+  onProgress?: FontProgressCallback
 ): Promise<{ font: Font; buffer: ArrayBuffer }> {
   const glyphs: Glyph[] = [];
+  const total = glyphDataArray.filter(g => g.imageData).length;
+  let current = 0;
 
   for (const glyphData of glyphDataArray) {
     if (!glyphData.imageData) continue;
+
+    current++;
+    onProgress?.(current, total, glyphData.letter);
 
     try {
       // 1. Clean the image (binarize)
@@ -46,6 +57,20 @@ export async function generateFont(
   const buffer = fontToArrayBuffer(font);
 
   return { font, buffer };
+}
+
+/**
+ * Filter a font buffer to only include uppercase A-Z glyphs (for free preview).
+ */
+export async function generateFreePreviewFont(
+  glyphDataArray: GlyphData[],
+  config: FontConfig = DEFAULT_FONT_CONFIG,
+  onProgress?: FontProgressCallback
+): Promise<{ font: Font; buffer: ArrayBuffer }> {
+  const uppercaseOnly = glyphDataArray.filter(g =>
+    LETTERS_UPPER.includes(g.letter)
+  );
+  return generateFont(uppercaseOnly, config, onProgress);
 }
 
 /**

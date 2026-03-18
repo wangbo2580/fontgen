@@ -3,7 +3,7 @@
 import { PLAN_DATA, PlanTier } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Check, Clock } from 'lucide-react';
+import { Check } from 'lucide-react';
 
 interface PricingCardsProps {
   onSelect: (tier: PlanTier) => void;
@@ -67,16 +67,15 @@ export function PricingCards({ onSelect, currentTier }: PricingCardsProps) {
                 className="w-full"
                 onClick={() => onSelect(tier)}
               >
-                Preview Only
+                Try Free Preview
               </Button>
             ) : (
               <Button
                 variant={isPopular ? 'default' : 'outline'}
-                className="w-full gap-2"
+                className="w-full"
                 onClick={() => onSelect(tier)}
               >
-                <Clock className="w-4 h-4" />
-                Coming Soon
+                Get {plan.label}
               </Button>
             )}
           </div>

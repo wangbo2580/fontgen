@@ -77,7 +77,7 @@ export function FontPreview({ fontUrl, fontFamily }: FontPreviewProps) {
 
       {/* Preview area */}
       <div
-        className="min-h-[120px] p-6 border rounded-lg bg-white overflow-auto"
+        className="min-h-[120px] p-6 border rounded-lg bg-white text-black overflow-auto"
         style={{
           fontFamily: `'${fontFamily}', sans-serif`,
           fontSize: `${fontSize}px`,

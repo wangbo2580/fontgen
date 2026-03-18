@@ -10,6 +10,7 @@ import { DownloadButton } from '@/components/features/DownloadButton';
 import { InputMode, CharacterCropResult, DEFAULT_FONT_CONFIG, LETTERS } from '@/types';
 import {
   generateFont,
+  generateFreePreviewFont,
   createGlyphDataFromCanvas,
   createGlyphDataFromUpload,
   createFontPreviewUrl,
@@ -17,7 +18,7 @@ import {
 import { preprocessImage } from '@/lib/ai-preprocess';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
-import { RotateCcw } from 'lucide-react';
+import { RotateCcw, AlertCircle } from 'lucide-react';
 
 type UploadStep = 'upload' | 'cropping' | 'ready';
 
@@ -37,22 +38,30 @@ export default function CreatePage() {
 
   // Font generation state
   const [isGenerating, setIsGenerating] = useState(false);
+  const [generatingProgress, setGeneratingProgress] = useState('');
   const [fontBuffer, setFontBuffer] = useState<ArrayBuffer | null>(null);
+  const [freePreviewBuffer, setFreePreviewBuffer] = useState<ArrayBuffer | null>(null);
   const [fontPreviewUrl, setFontPreviewUrl] = useState<string | null>(null);
+
+  // Error state
+  const [error, setError] = useState<string | null>(null);
 
   // Handle image upload
   const handleImageLoaded = useCallback(async (file: File, imageData: ImageData) => {
     setIsProcessing(true);
     setFontBuffer(null);
+    setFreePreviewBuffer(null);
     setFontPreviewUrl(null);
+    setError(null);
 
     try {
       const { results, method } = await preprocessImage(file, imageData);
       setCropResults(results);
       setCropMethod(method);
       setUploadStep('cropping');
-    } catch (error) {
-      console.error('Processing failed:', error);
+    } catch (err) {
+      console.error('Processing failed:', err);
+      setError('Failed to process the image. Please try a clearer photo with dark ink on white paper.');
     } finally {
       setIsProcessing(false);
     }
@@ -62,9 +71,11 @@ export default function CreatePage() {
   const handleCropConfirm = useCallback(async (results: CharacterCropResult[]) => {
     setCropResults(results);
     setUploadStep('ready');
+    setError(null);
 
     // Auto-generate font
     setIsGenerating(true);
+    setGeneratingProgress('Preparing...');
     try {
       const croppedImages = LETTERS.map((letter) => {
         const found = results.find((r) => r.letter === letter && r.qualityScore > 0);
@@ -72,13 +83,23 @@ export default function CreatePage() {
       });
 
       const glyphData = createGlyphDataFromUpload(croppedImages);
-      const { buffer } = await generateFont(glyphData, DEFAULT_FONT_CONFIG);
+
+      // Generate full font
+      const { buffer } = await generateFont(glyphData, DEFAULT_FONT_CONFIG, (current, total, letter) => {
+        setGeneratingProgress(`Processing ${letter}... (${current}/${total})`);
+      });
       setFontBuffer(buffer);
       setFontPreviewUrl(createFontPreviewUrl(buffer));
-    } catch (error) {
-      console.error('Font generation failed:', error);
+
+      // Generate free preview (A-Z only)
+      const { buffer: freeBuffer } = await generateFreePreviewFont(glyphData, DEFAULT_FONT_CONFIG);
+      setFreePreviewBuffer(freeBuffer);
+    } catch (err) {
+      console.error('Font generation failed:', err);
+      setError('Font generation failed. Please try re-uploading your image.');
     } finally {
       setIsGenerating(false);
+      setGeneratingProgress('');
     }
   }, []);
 
@@ -87,16 +108,28 @@ export default function CreatePage() {
     if (!canvasDataGetterRef.current) return;
 
     setIsGenerating(true);
+    setGeneratingProgress('Preparing...');
+    setError(null);
     try {
       const canvasData = canvasDataGetterRef.current();
       const glyphData = createGlyphDataFromCanvas(canvasData);
-      const { buffer } = await generateFont(glyphData, DEFAULT_FONT_CONFIG);
+
+      // Generate full font
+      const { buffer } = await generateFont(glyphData, DEFAULT_FONT_CONFIG, (current, total, letter) => {
+        setGeneratingProgress(`Processing ${letter}... (${current}/${total})`);
+      });
       setFontBuffer(buffer);
       setFontPreviewUrl(createFontPreviewUrl(buffer));
-    } catch (error) {
-      console.error('Font generation failed:', error);
+
+      // Generate free preview (A-Z only)
+      const { buffer: freeBuffer } = await generateFreePreviewFont(glyphData, DEFAULT_FONT_CONFIG);
+      setFreePreviewBuffer(freeBuffer);
+    } catch (err) {
+      console.error('Font generation failed:', err);
+      setError('Font generation failed. Please try writing the letters again.');
     } finally {
       setIsGenerating(false);
+      setGeneratingProgress('');
     }
   }, []);
 
@@ -105,7 +138,9 @@ export default function CreatePage() {
     setUploadStep('upload');
     setCropResults(null);
     setFontBuffer(null);
+    setFreePreviewBuffer(null);
     setFontPreviewUrl(null);
+    setError(null);
   }, []);
 
   return (
@@ -122,6 +157,20 @@ export default function CreatePage() {
           </p>
         </div>
 
+        {/* Error message */}
+        {error && (
+          <div className="mb-6 p-4 border border-destructive/50 bg-destructive/5 rounded-lg flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-destructive">Something went wrong</p>
+              <p className="text-sm text-muted-foreground mt-1">{error}</p>
+            </div>
+            <Button variant="ghost" size="sm" className="ml-auto shrink-0" onClick={() => setError(null)}>
+              Dismiss
+            </Button>
+          </div>
+        )}
+
         {/* Mode tabs */}
         <div className="mb-8">
           <InputModeTabs
@@ -129,7 +178,9 @@ export default function CreatePage() {
             onChange={(m) => {
               setMode(m);
               setFontBuffer(null);
+              setFreePreviewBuffer(null);
               setFontPreviewUrl(null);
+              setError(null);
             }}
           />
         </div>
@@ -178,7 +229,9 @@ export default function CreatePage() {
             <div className="flex justify-center">
               <DownloadButton
                 fontBuffer={fontBuffer}
+                freePreviewBuffer={freePreviewBuffer}
                 isGenerating={isGenerating}
+                generatingProgress={generatingProgress}
                 onGenerate={handleCanvasGenerate}
                 disabled={canvasCompletedCount === 0}
               />
@@ -200,7 +253,9 @@ export default function CreatePage() {
               <div className="flex justify-center mt-6">
                 <DownloadButton
                   fontBuffer={fontBuffer}
+                  freePreviewBuffer={freePreviewBuffer}
                   isGenerating={isGenerating}
+                  generatingProgress={generatingProgress}
                 />
               </div>
             )}

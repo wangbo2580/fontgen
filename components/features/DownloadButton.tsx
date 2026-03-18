@@ -15,14 +15,18 @@ import { PaywallDialog } from './PaywallDialog';
 
 interface DownloadButtonProps {
   fontBuffer: ArrayBuffer | null;
+  freePreviewBuffer: ArrayBuffer | null;
   isGenerating?: boolean;
+  generatingProgress?: string;
   onGenerate?: () => Promise<void>;
   disabled?: boolean;
 }
 
 export function DownloadButton({
   fontBuffer,
+  freePreviewBuffer,
   isGenerating,
+  generatingProgress,
   onGenerate,
   disabled,
 }: DownloadButtonProps) {
@@ -34,24 +38,26 @@ export function DownloadButton({
     if (!fontBuffer && onGenerate) {
       await onGenerate();
     }
-    // Show paywall instead of direct download
     setShowPaywall(true);
   };
 
   const handleFreePreview = () => {
     setShowPaywall(false);
-    if (fontBuffer) {
+    if (freePreviewBuffer) {
       setShowNameDialog(true);
     }
   };
 
   const handleDownload = () => {
-    if (!fontBuffer) return;
-    const blob = new Blob([fontBuffer], { type: 'font/otf' });
+    // Free preview: only download the A-Z uppercase limited buffer
+    const buffer = freePreviewBuffer;
+    if (!buffer) return;
+
+    const blob = new Blob([buffer], { type: 'font/otf' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${fontName || 'MyHandwriting'}.otf`;
+    a.download = `${fontName || 'MyHandwriting'}_preview.otf`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -70,7 +76,7 @@ export function DownloadButton({
         {isGenerating ? (
           <>
             <Loader2 className="w-4 h-4 animate-spin" />
-            Generating Font...
+            {generatingProgress || 'Generating Font...'}
           </>
         ) : (
           <>
@@ -94,7 +100,7 @@ export function DownloadButton({
           <DialogHeader>
             <DialogTitle>Download Free Preview</DialogTitle>
             <DialogDescription>
-              This is a free preview with A-Z uppercase only. Upgrade for the full character set.
+              This free preview includes A-Z uppercase only (26 characters). Upgrade for the full character set with lowercase, numbers, and punctuation.
             </DialogDescription>
           </DialogHeader>
 
@@ -117,7 +123,7 @@ export function DownloadButton({
             </Button>
             <Button onClick={handleDownload}>
               <Download className="w-4 h-4 mr-2" />
-              Download .otf (Free)
+              Download .otf (A-Z Preview)
             </Button>
           </DialogFooter>
         </DialogContent>

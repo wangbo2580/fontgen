@@ -19,9 +19,22 @@ export async function traceImageData(imageData: ImageData): Promise<string> {
  * Creates an OffscreenCanvas from ImageData, passes to potrace-wasm.
  */
 async function traceWithPotrace(imageData: ImageData): Promise<string> {
-  const { loadFromCanvas } = await import('potrace-wasm');
+  if (typeof window === 'undefined') {
+    throw new Error('potrace-wasm requires browser environment');
+  }
 
-  // potrace-wasm expects a canvas element
+  // Dynamic import to avoid SSR/Turbopack static analysis of potrace-wasm's `require('fs')`
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const moduleName = 'potrace-wasm';
+  const mod: any = await (new Function('m', 'return import(m)'))(moduleName);
+  const loadFromCanvas: (c: unknown) => Promise<string> =
+    mod.loadFromCanvas ?? mod.default?.loadFromCanvas;
+
+  if (typeof loadFromCanvas !== 'function') {
+    throw new Error('potrace-wasm: loadFromCanvas not found');
+  }
+
+  // potrace-wasm expects a canvas with getContext('2d') support
   const canvas = new OffscreenCanvas(imageData.width, imageData.height);
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Failed to get 2d context from OffscreenCanvas');

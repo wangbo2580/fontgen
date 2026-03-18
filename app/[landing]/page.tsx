@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { getLandingPageBySlug, getAllLandingPageSlugs } from '@/lib/seo-styles';
+import { getLandingPageBySlug, getAllLandingPageSlugs, FONT_STYLES, SEO_LANDING_PAGES } from '@/lib/seo-styles';
 import { Check, ArrowRight } from 'lucide-react';
 
 export const dynamicParams = false;
@@ -170,8 +170,42 @@ export default async function LandingPage({ params }: PageProps) {
         </div>
       </section>
 
-      {/* Bottom CTA */}
+      {/* Related pages */}
       <section className="py-16">
+        <div className="max-w-4xl mx-auto px-4">
+          <h2 className="text-2xl font-bold mb-6 text-center">
+            Explore Font Styles
+          </h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-8">
+            {FONT_STYLES.slice(0, 8).map((s) => (
+              <Link
+                key={s.slug}
+                href={`/ai-${s.slug}-font-generator`}
+                className="text-center p-3 border rounded-lg hover:border-primary/50 hover:bg-primary/5 transition-colors"
+              >
+                <span className="text-sm font-medium">{s.label}</span>
+                <span className="block text-xs text-muted-foreground mt-1">Font Generator</span>
+              </Link>
+            ))}
+          </div>
+
+          {/* Related landing pages */}
+          <div className="flex flex-wrap gap-2 justify-center">
+            {SEO_LANDING_PAGES.filter((p) => p.slug !== slug).map((p) => (
+              <Link
+                key={p.slug}
+                href={`/${p.slug}`}
+                className="text-xs text-muted-foreground hover:text-foreground border rounded-full px-3 py-1 transition-colors"
+              >
+                {p.h1}
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Bottom CTA */}
+      <section className="py-16 bg-primary/5">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h2 className="text-2xl font-bold mb-3">
             Ready to Turn Your Handwriting into a Font?

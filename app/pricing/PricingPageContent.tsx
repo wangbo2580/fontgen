@@ -30,11 +30,11 @@ export function PricingPageContent() {
         <div className="text-center mt-12 space-y-4">
           <p className="text-sm text-muted-foreground">
             All plans include instant font generation and live preview.
-            Paid plans coming soon with PayPal checkout.
+            Secure payment via PayPal. No subscription.
           </p>
           <Button asChild>
             <Link href="/create">
-              Try Free Preview
+              Start Creating — Free to Try
               <ArrowRight className="w-4 h-4 ml-1.5" />
             </Link>
           </Button>
